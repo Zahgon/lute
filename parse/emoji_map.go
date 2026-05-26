@@ -10,10 +10,6 @@
 
 package parse
 
-import (
-	"strings"
-)
-
 var EmojiUnicodeAlias map[string]string
 
 func init() {
@@ -23,14 +19,7 @@ func init() {
 	}
 }
 
-func IsEmoji(str string) bool {
-	for _, v := range EmojiAliasUnicode {
-		if strings.HasPrefix(v, str) {
-			return true
-		}
-	}
-	return false
-}
+func IsEmoji(str string) bool { _ = "STUB: not implemented"; return false }
 
 var EmojiAliasUnicode = map[string]string{
 	"+1":                                   "👍",

@@ -4,96 +4,25 @@
 
 package html
 
-import (
-	"strings"
-)
-
 // parseDoctype parses the data from a DoctypeToken into a name,
 // public identifier, and system identifier. It returns a Node whose Type
 // is DoctypeNode, whose Data is the name, and which has attributes
 // named "system" and "public" for the two identifiers if they were present.
 // quirks is whether the document should be parsed in "quirks mode".
 func parseDoctype(s string) (n *Node, quirks bool) {
-	n = &Node{Type: DoctypeNode}
+	_ = "STUB: not implemented"
+	return nil,
 
-	// Find the name.
-	space := strings.IndexAny(s, whitespace)
-	if space == -1 {
-		space = len(s)
-	}
-	n.Data = s[:space]
-	// The comparison to "html" is case-sensitive.
-	if n.Data != "html" {
-		quirks = true
-	}
-	n.Data = strings.ToLower(n.Data)
-	s = strings.TrimLeft(s[space:], whitespace)
-
-	if len(s) < 6 {
-		// It can't start with "PUBLIC" or "SYSTEM".
-		// Ignore the rest of the string.
-		return n, quirks || s != ""
-	}
-
-	key := strings.ToLower(s[:6])
-	s = s[6:]
-	for key == "public" || key == "system" {
-		s = strings.TrimLeft(s, whitespace)
-		if s == "" {
-			break
-		}
-		quote := s[0]
-		if quote != '"' && quote != '\'' {
-			break
-		}
-		s = s[1:]
-		q := strings.IndexRune(s, rune(quote))
-		var id string
-		if q == -1 {
-			id = s
-			s = ""
-		} else {
-			id = s[:q]
-			s = s[q+1:]
-		}
-		n.Attr = append(n.Attr, &Attribute{Key: key, Val: id})
-		if key == "public" {
-			key = "system"
-		} else {
-			key = ""
-		}
-	}
-
-	if key != "" || s != "" {
-		quirks = true
-	} else if len(n.Attr) > 0 {
-		if n.Attr[0].Key == "public" {
-			public := strings.ToLower(n.Attr[0].Val)
-			switch public {
-			case "-//w3o//dtd w3 html strict 3.0//en//", "-/w3d/dtd html 4.0 transitional/en", "html":
-				quirks = true
-			default:
-				for _, q := range quirkyIDs {
-					if strings.HasPrefix(public, q) {
-						quirks = true
-						break
-					}
-				}
-			}
-			// The following two public IDs only cause quirks mode if there is no system ID.
-			if len(n.Attr) == 1 && (strings.HasPrefix(public, "-//w3c//dtd html 4.01 frameset//") ||
-				strings.HasPrefix(public, "-//w3c//dtd html 4.01 transitional//")) {
-				quirks = true
-			}
-		}
-		if lastAttr := n.Attr[len(n.Attr)-1]; lastAttr.Key == "system" &&
-			strings.ToLower(lastAttr.Val) == "http://www.ibm.com/data/dtd/v11/ibmxhtml1-transitional.dtd" {
-			quirks = true
-		}
-	}
-
-	return n, quirks
+		// Find the name.
+		false
 }
+
+// The comparison to "html" is case-sensitive.
+
+// It can't start with "PUBLIC" or "SYSTEM".
+// Ignore the rest of the string.
+
+// The following two public IDs only cause quirks mode if there is no system ID.
 
 // quirkyIDs is a list of public doctype identifiers that cause a document
 // to be interpreted in quirks mode. The identifiers should be in lower case.

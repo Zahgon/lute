@@ -11,25 +11,10 @@
 package parse
 
 import (
-	"bytes"
-
 	"github.com/88250/lute/ast"
-	"github.com/88250/lute/editor"
-	"github.com/88250/lute/lex"
 )
 
 func (context *Context) parseToC(paragraph *ast.Node) *ast.Node {
-	lines := lex.Split(paragraph.Tokens, lex.ItemNewline)
-	if 1 != len(lines) {
-		return nil
-	}
-
-	content := bytes.TrimSpace(lines[0])
-	if context.ParseOption.VditorWYSIWYG || context.ParseOption.VditorIR || context.ParseOption.VditorSV {
-		content = bytes.ReplaceAll(content, editor.CaretTokens, nil)
-	}
-	if !bytes.EqualFold(content, []byte("[toc]")) {
-		return nil
-	}
-	return &ast.Node{Type: ast.NodeToC}
+	_ = "STUB: not implemented"
+	return nil
 }

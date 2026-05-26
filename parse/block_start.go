@@ -15,27 +15,9 @@ import (
 )
 
 // blockStarts 返回定义好的一系列函数，每个函数用于判断某种块节点是否可以开始。
-func blockStarts() []blockStartFunc {
-	return []blockStartFunc{
-		GitConflictStart,
-		CalloutStart,
-		BlockquoteStart,
-		ATXHeadingStart,
-		FenceCodeBlockStart,
-		// CustomBlockStart, // https://github.com/siyuan-note/siyuan/issues/8418
-		SetextHeadingStart,
-		HtmlBlockStart,
-		YamlFrontMatterStart,
-		ThematicBreakStart,
-		ListStart,
-		MathBlockStart,
-		IndentCodeBlockStart,
-		FootnotesStart,
-		IALStart,
-		BlockQueryEmbedStart,
-		SuperBlockStart,
-	}
-}
+func blockStarts() []blockStartFunc { _ = "STUB: not implemented"; return nil }
+
+// CustomBlockStart, // https://github.com/siyuan-note/siyuan/issues/8418
 
 // blockStartFunc 定义了用于判断块是否开始的函数签名，返回值：
 //

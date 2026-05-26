@@ -10,22 +10,7 @@
 
 package render
 
-import "strings"
-
-func isFileExt(pos, length int, runes *[]rune) bool {
-	max := pos + maxCommonFileTypeLen
-	if max > length {
-		max = length
-	}
-
-	ext := string((*runes)[pos:max])
-	for j := 0; j < commonFileTypesLen; j++ {
-		if strings.HasPrefix(ext, commonFileTypes[j]) {
-			return true
-		}
-	}
-	return false
-}
+func isFileExt(pos, length int, runes *[]rune) bool { _ = "STUB: not implemented"; return false }
 
 var commonFileTypesLen = len(commonFileTypes)
 var maxCommonFileTypeLen = 10 // textbundle

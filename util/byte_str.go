@@ -8,21 +8,13 @@
 // THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 // See the Mulan PSL v2 for more details.
 
+//go:build !javascript
 // +build !javascript
 
 package util
 
-import "unsafe"
-
 // BytesToStr 快速转换 []byte 为 string。
-func BytesToStr(bytes []byte) string {
-	return *(*string)(unsafe.Pointer(&bytes))
-}
+func BytesToStr(bytes []byte) string { _ = "STUB: not implemented"; return "" }
 
 // StrToBytes 快速转换 string 为 []byte。
-func StrToBytes(str string) []byte {
-	x := (*[2]uintptr)(unsafe.Pointer(&str))
-	h := [3]uintptr{x[0], x[1], x[1]}
-	return *(*[]byte)(unsafe.Pointer(&h))
-}
-
+func StrToBytes(str string) []byte { _ = "STUB: not implemented"; return nil }

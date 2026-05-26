@@ -12,17 +12,9 @@ package render
 
 import (
 	"bytes"
-	"strconv"
-	"strings"
-	"unicode"
-	"unicode/utf8"
 
 	"github.com/88250/lute/ast"
-	"github.com/88250/lute/editor"
-	"github.com/88250/lute/html"
-	"github.com/88250/lute/lex"
 	"github.com/88250/lute/parse"
-	"github.com/88250/lute/util"
 )
 
 // RendererFunc 描述了渲染器函数签名。
@@ -131,40 +123,7 @@ type Options struct {
 	ExportNormalizeTaskListMarker bool
 }
 
-func NewOptions() *Options {
-	return &Options{
-		SoftBreak2HardBreak:            true,
-		AutoSpace:                      false,
-		RenderListStyle:                false,
-		CodeSyntaxHighlight:            true,
-		CodeSyntaxHighlightInlineStyle: false,
-		CodeSyntaxHighlightLineNum:     false,
-		CodeSyntaxHighlightStyleName:   "github",
-		VditorWYSIWYG:                  false,
-		VditorIR:                       false,
-		VditorSV:                       false,
-		ProtyleWYSIWYG:                 false,
-		KramdownBlockIAL:               false,
-		ChineseParagraphBeginningSpace: false,
-		FixTermTypo:                    false,
-		ToC:                            false,
-		HeadingID:                      false,
-		KramdownIALIDRenderName:        "id",
-		GFMTaskListItemClass:           "vditor-task",
-		DataTask:                       false,
-		ExportNormalizeTaskListMarker:  true,
-		VditorCodeBlockPreview:         true,
-		VditorMathBlockPreview:         true,
-		VditorHTMLBlockPreview:         true,
-		LinkBase:                       "",
-		LinkPrefix:                     "",
-		NodeIndexStart:                 1,
-		ProtyleContenteditable:         true,
-		ProtyleMarkNetImg:              true,
-		Spellcheck:                     false,
-		Terms:                          NewTerms(),
-	}
-}
+func NewOptions() *Options { _ = "STUB: not implemented"; return nil }
 
 // BaseRenderer 描述了渲染器结构。
 type BaseRenderer struct {
@@ -185,250 +144,59 @@ type BaseRenderer struct {
 // 当 ExportNormalizeTaskListMarker 选项开启时，将非标准标记符（如 /、>、! 等）转为 X。
 // 仅用于 Markdown 文本输出场景（format、export_md），不用于 data-task 属性。
 func (r *BaseRenderer) NormalizedTaskListItemMarker(node *ast.Node) byte {
-	marker := node.EffectiveTaskListItemMarker()
-	if r.Options.ExportNormalizeTaskListMarker {
-		if marker != " " && marker != "X" {
-			marker = "X"
-		}
-	}
-	return html.UnescapeHTMLStr(marker)[0]
+	_ = "STUB: not implemented"
+	return 0
 }
 
 // NormalizedTaskListItemChecked 返回规范化后的任务列表勾选状态。
 func (r *BaseRenderer) NormalizedTaskListItemChecked(node *ast.Node) bool {
-	marker := r.NormalizedTaskListItemMarker(node)
-	return marker != ' '
+	_ = "STUB: not implemented"
+	return false
 }
 
 // NewBaseRenderer 构造一个 BaseRenderer。
 func NewBaseRenderer(tree *parse.Tree, options *Options, parseOptions *parse.Options) *BaseRenderer {
-	ret := &BaseRenderer{RendererFuncs: make(map[ast.NodeType]RendererFunc, 192), ExtRendererFuncs: map[ast.NodeType]ExtRendererFunc{}, Options: options, ParseOptions: parseOptions, Tree: tree}
-	ret.Writer = &bytes.Buffer{}
-	ret.Writer.Grow(4096)
-	return ret
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Render 从根节点开始遍历并渲染。
-func (r *BaseRenderer) Render() (output []byte) {
-	r.LastOut = lex.ItemNewline
-	r.Writer = &bytes.Buffer{}
-	r.Writer.Grow(4096)
-
-	ast.Walk(r.Tree.Root, func(n *ast.Node, entering bool) ast.WalkStatus {
-		extRender := r.ExtRendererFuncs[n.Type]
-		if nil != extRender {
-			output, status := extRender(n, entering)
-			r.WriteString(output)
-			return status
-		}
-
-		render := r.RendererFuncs[n.Type]
-		if nil == render {
-			if nil != r.DefaultRendererFunc {
-				return r.DefaultRendererFunc(n, entering)
-			}
-			return r.renderDefault(n, entering)
-		}
-		return render(n, entering)
-	})
-
-	output = r.Writer.Bytes()
-	return
-}
+func (r *BaseRenderer) Render() (output []byte) { _ = "STUB: not implemented"; return nil }
 
 func (r *BaseRenderer) renderDefault(n *ast.Node, entering bool) ast.WalkStatus {
-	r.WriteString("not found render function for node [type=" + n.Type.String() + ", Tokens=" + util.BytesToStr(n.Tokens) + "]")
-	return ast.WalkContinue
+	_ = "STUB: not implemented"
+	return *new(ast.WalkStatus)
 }
 
 // WriteByte 输出一个字节 c。
-func (r *BaseRenderer) WriteByte(c byte) {
-	r.Writer.WriteByte(c)
-	r.LastOut = c
-}
+func (r *BaseRenderer) WriteByte(c byte) { _ = "STUB: not implemented"; return }
 
 // Write 输出指定的字节数组 content。
-func (r *BaseRenderer) Write(content []byte) {
-	if length := len(content); 0 < length {
-		r.Writer.Write(content)
-		r.LastOut = content[length-1]
-	}
-}
+func (r *BaseRenderer) Write(content []byte) { _ = "STUB: not implemented"; return }
 
 // WriteString 输出指定的字符串 content。
-func (r *BaseRenderer) WriteString(content string) {
-	if length := len(content); 0 < length {
-		r.Writer.WriteString(content)
-		r.LastOut = content[length-1]
-	}
-}
+func (r *BaseRenderer) WriteString(content string) { _ = "STUB: not implemented"; return }
 
 // Newline 会在最新内容不是换行符 \n 时输出一个换行符。
-func (r *BaseRenderer) Newline() {
-	if lex.ItemNewline != r.LastOut {
-		r.Writer.WriteByte(lex.ItemNewline)
-		r.LastOut = lex.ItemNewline
-	}
-}
+func (r *BaseRenderer) Newline() { _ = "STUB: not implemented"; return }
 
-func (r *BaseRenderer) TextAutoSpacePrevious(node *ast.Node) {
-	if !r.Options.AutoSpace {
-		return
-	}
+func (r *BaseRenderer) TextAutoSpacePrevious(node *ast.Node) { _ = "STUB: not implemented"; return }
 
-	text := node.ChildByType(ast.NodeText)
-	var tokens []byte
-	if nil != text {
-		tokens = text.Tokens
-	}
-	if ast.NodeTextMark == node.Type {
-		tokens = []byte(node.TextMarkTextContent)
-	}
-	if 1 > len(tokens) {
-		return
-	}
+func (r *BaseRenderer) TextAutoSpaceNext(node *ast.Node) { _ = "STUB: not implemented"; return }
 
-	if previous := node.Previous; nil != previous && ast.NodeText == previous.Type {
-		prevLast, _ := utf8.DecodeLastRune(previous.Tokens)
-		first, _ := utf8.DecodeRune(tokens)
-		if allowSpace(prevLast, first) {
-			r.Writer.WriteByte(lex.ItemSpace)
-		}
-	}
-}
+// 优化排版未处理样式文本 https://github.com/siyuan-note/siyuan/issues/6305
 
-func (r *BaseRenderer) TextAutoSpaceNext(node *ast.Node) {
-	if !r.Options.AutoSpace {
-		return
-	}
+func (r *BaseRenderer) LinkTextAutoSpacePrevious(node *ast.Node) { _ = "STUB: not implemented"; return }
 
-	text := node.ChildByType(ast.NodeText)
-	var tokens []byte
-	if nil != text {
-		tokens = text.Tokens
-	}
-	if ast.NodeTextMark == node.Type {
-		tokens = []byte(node.TextMarkTextContent)
-	}
-	if 1 > len(tokens) {
-		return
-	}
+func (r *BaseRenderer) LinkTextAutoSpaceNext(node *ast.Node) { _ = "STUB: not implemented"; return }
 
-	if next := node.Next; nil != next {
-		if ast.NodeText == next.Type {
-			nextFirst, _ := utf8.DecodeRune(next.Tokens)
-			last, _ := utf8.DecodeLastRune(tokens)
-			if allowSpace(last, nextFirst) {
-				r.Writer.WriteByte(lex.ItemSpace)
-			}
-		} else if ast.NodeKramdownSpanIAL == next.Type {
-			// 优化排版未处理样式文本 https://github.com/siyuan-note/siyuan/issues/6305
-			next = next.Next
-			if nil != next && ast.NodeText == next.Type {
-				nextFirst, _ := utf8.DecodeRune(next.Tokens)
-				last, _ := utf8.DecodeLastRune(tokens)
-				if allowSpace(last, nextFirst) {
-					next.Tokens = append([]byte{lex.ItemSpace}, next.Tokens...)
-				}
-			}
-		}
-	}
-}
+func SubStr(str string, length int) (ret string) { _ = "STUB: not implemented"; return "" }
 
-func (r *BaseRenderer) LinkTextAutoSpacePrevious(node *ast.Node) {
-	if !r.Options.AutoSpace {
-		return
-	}
+func HeadingID(heading *ast.Node) (ret string) { _ = "STUB: not implemented"; return "" }
 
-	if text := node.ChildByType(ast.NodeLinkText); nil != text && nil != text.Tokens {
-		if previous := node.Previous; nil != previous && ast.NodeText == previous.Type {
-			prevLast, _ := utf8.DecodeLastRune(previous.Tokens)
-			first, _ := utf8.DecodeRune(text.Tokens)
-			if allowSpace(prevLast, first) {
-				r.Writer.WriteByte(lex.ItemSpace)
-			}
-		}
-	}
-}
+func headingID0(heading *ast.Node) { _ = "STUB: not implemented"; return }
 
-func (r *BaseRenderer) LinkTextAutoSpaceNext(node *ast.Node) {
-	if !r.Options.AutoSpace {
-		return
-	}
-
-	if text := node.ChildByType(ast.NodeLinkText); nil != text && nil != text.Tokens {
-		if next := node.Next; nil != next && ast.NodeText == next.Type {
-			nextFirst, _ := utf8.DecodeRune(next.Tokens)
-			last, _ := utf8.DecodeLastRune(text.Tokens)
-			if allowSpace(last, nextFirst) {
-				r.Writer.WriteByte(lex.ItemSpace)
-			}
-		}
-	}
-}
-
-func SubStr(str string, length int) (ret string) {
-	var count int
-	for i := 0; i < len(str); {
-		r, size := utf8.DecodeRuneInString(str[i:])
-		i += size
-		ret += string(r)
-		count++
-		if length <= count {
-			break
-		}
-	}
-	return
-}
-
-func HeadingID(heading *ast.Node) (ret string) {
-	if 0 == len(util.StrToBytes(heading.HeadingNormalizedID)) {
-		headingID0(heading)
-	}
-	return heading.HeadingNormalizedID
-}
-
-func headingID0(heading *ast.Node) {
-	var root *ast.Node
-	for root = heading.Parent; ast.NodeDocument != root.Type; root = root.Parent {
-	}
-
-	idOccurs := map[string]int{}
-	ast.Walk(root, func(n *ast.Node, entering bool) ast.WalkStatus {
-		if entering {
-			if ast.NodeHeading == n.Type {
-				id := normalizeHeadingID(n)
-				for ; 0 < idOccurs[id]; id += "-" {
-				}
-				n.HeadingNormalizedID = id
-				idOccurs[id] = 1
-			}
-		}
-		return ast.WalkContinue
-	})
-}
-
-func normalizeHeadingID(heading *ast.Node) (ret string) {
-	headingID := heading.ChildByType(ast.NodeHeadingID)
-	var id string
-	if nil != headingID {
-		id = util.BytesToStr(headingID.Tokens)
-	}
-	if "" == id {
-		id = heading.Text()
-	}
-
-	id = strings.TrimLeft(id, "#")
-	id = strings.ReplaceAll(id, editor.Caret, "")
-	for _, r := range id {
-		if unicode.IsLetter(r) || unicode.IsDigit(r) {
-			ret += string(r)
-		} else {
-			ret += "-"
-		}
-	}
-	return
-}
+func normalizeHeadingID(heading *ast.Node) (ret string) { _ = "STUB: not implemented"; return "" }
 
 type Heading struct {
 	ID       string     `json:"id"`
@@ -442,435 +210,74 @@ type Heading struct {
 }
 
 func (r *BaseRenderer) renderToC(node *ast.Node, entering bool) ast.WalkStatus {
-	if entering {
-		headings := r.headings()
-		length := len(headings)
-		r.WriteString("<div class=\"vditor-toc\" data-block=\"0\" data-type=\"toc-block\" contenteditable=\"false\">")
-		if 0 < length {
-			r.WriteString("<ul>")
-			for _, child := range headings {
-				r.renderToC0(child)
-			}
-			r.WriteString("</ul>")
-		} else {
-			r.WriteString("[toc]<br>")
-		}
-		r.WriteString("</div>")
-	}
-	return ast.WalkContinue
+	_ = "STUB: not implemented"
+	return *new(ast.WalkStatus)
 }
 
-func (r *BaseRenderer) renderToC0(heading *Heading) {
-	r.WriteString("<li>")
-	r.Tag("span", [][]string{{"data-target-id", heading.ID}}, false)
-	r.WriteString(heading.Content)
-	r.Tag("/span", nil, false)
-	if 0 < len(heading.Children) {
-		r.WriteString("<ul>")
-		for _, child := range heading.Children {
-			r.renderToC0(child)
-		}
-		r.WriteString("</ul>")
-	}
-	r.WriteString("</li>")
-}
+func (r *BaseRenderer) renderToC0(heading *Heading) { _ = "STUB: not implemented"; return }
 
 func (r *BaseRenderer) Tag(name string, attrs [][]string, selfclosing bool) {
-	if r.DisableTags > 0 {
-		return
-	}
-
-	r.WriteString("<")
-	r.WriteString(name)
-	if 0 < len(attrs) {
-		for _, attr := range attrs {
-			r.WriteString(" " + attr[0] + "=\"" + attr[1] + "\"")
-		}
-	}
-	if selfclosing {
-		r.WriteString(" /")
-	}
-	r.WriteString(">")
-}
-
-func (r *BaseRenderer) headings() (ret []*Heading) {
-	headings := r.Tree.Root.ChildrenByType(ast.NodeHeading)
-	var tip *Heading
-	for _, heading := range headings {
-		if r.Tree.Root != heading.Parent {
-			continue
-		}
-
-		id := HeadingID(heading)
-		if r.Options.VditorWYSIWYG {
-			id = "wysiwyg-" + id
-		} else if r.Options.VditorIR {
-			id = "ir-" + id
-		}
-
-		if r.Options.KramdownBlockIAL {
-			for _, kv := range heading.KramdownIAL {
-				if "id" == kv[0] {
-					id = kv[1]
-					break
-				}
-			}
-		}
-
-		h := &Heading{
-			ID:      id,
-			Box:     r.Tree.Box,
-			Path:    r.Tree.Path,
-			HPath:   r.Tree.HPath,
-			Content: headingText(heading),
-			Level:   heading.HeadingLevel,
-		}
-
-		if nil == tip {
-			ret = append(ret, h)
-		} else {
-			if tip.Level < h.Level {
-				tip.Children = append(tip.Children, h)
-				h.parent = tip
-			} else {
-				if parent := parentTip(h, tip); nil == parent {
-					ret = append(ret, h)
-				} else {
-					parent.Children = append(parent.Children, h)
-					h.parent = tip.parent
-				}
-			}
-		}
-		tip = h
-	}
+	_ = "STUB: not implemented"
 	return
 }
 
-func parentTip(currentHeading, tip *Heading) *Heading {
-	if nil == tip.parent {
-		return nil
-	}
+func (r *BaseRenderer) headings() (ret []*Heading) { _ = "STUB: not implemented"; return nil }
 
-	for parent := tip.parent; nil != parent; parent = parent.parent {
-		if parent.Level < currentHeading.Level {
-			return parent
-		}
-	}
-	return nil
-}
+func parentTip(currentHeading, tip *Heading) *Heading { _ = "STUB: not implemented"; return nil }
 
-func headingText(n *ast.Node) (ret string) {
-	buf := &bytes.Buffer{}
-	ast.Walk(n, func(n *ast.Node, entering bool) ast.WalkStatus {
-		if !entering {
-			return ast.WalkContinue
-		}
-
-		switch n.Type {
-		case ast.NodeLinkText, ast.NodeBlockRefText, ast.NodeBlockRefDynamicText, ast.NodeFileAnnotationRefText:
-			buf.Write(n.Tokens)
-		case ast.NodeInlineMathContent:
-			buf.WriteString("<span class=\"language-math\">")
-			buf.Write(html.EscapeHTML(n.Tokens))
-			buf.WriteString("</span>")
-		case ast.NodeCodeSpanContent:
-			buf.WriteString("<code>")
-			buf.Write(html.EscapeHTML(n.Tokens))
-			buf.WriteString("</code>")
-		case ast.NodeText:
-			if n.ParentIs(ast.NodeStrong) {
-				buf.WriteString("<strong>")
-				buf.Write(html.EscapeHTML(n.Tokens))
-				buf.WriteString("</strong>")
-			} else if n.ParentIs(ast.NodeEmphasis) {
-				buf.WriteString("<em>")
-				buf.Write(html.EscapeHTML(n.Tokens))
-				buf.WriteString("</em>")
-			} else {
-				if nil != n.Previous && ast.NodeInlineHTML == n.Previous.Type {
-					if bytes.HasPrefix(n.Previous.Tokens, []byte("<font ")) {
-						buf.Write(n.Previous.Tokens)
-						buf.Write(n.Tokens)
-					}
-					if nil != n.Next && bytes.Equal(n.Next.Tokens, []byte("</font>")) {
-						buf.Write(n.Next.Tokens)
-					}
-				} else {
-					buf.Write(html.EscapeHTML(n.Tokens))
-				}
-			}
-		}
-		return ast.WalkContinue
-	})
-	return buf.String()
-}
+func headingText(n *ast.Node) (ret string) { _ = "STUB: not implemented"; return "" }
 
 func (r *BaseRenderer) setextHeadingLen(node *ast.Node) (ret int) {
-	buf := &bytes.Buffer{}
-	ast.Walk(node, func(n *ast.Node, entering bool) ast.WalkStatus {
-		if (ast.NodeText == n.Type || ast.NodeLinkText == n.Type || ast.NodeSoftBreak == n.Type) && entering {
-			buf.Write(n.Tokens)
-		}
-		return ast.WalkContinue
-	})
-	content := buf.String()
-	content = strings.ReplaceAll(content, editor.Caret, "")
-	lines := strings.Split(content, "\n")
-	lastLine := lines[len(lines)-1]
-	for _, r := range lastLine {
-		if utf8.RuneSelf <= r {
-			ret += 2
-		} else {
-			ret++
-		}
-	}
-	if 0 == ret {
-		ret = 3
-	}
-	return
+	_ = "STUB: not implemented"
+	return 0
 }
 
 func (r *BaseRenderer) renderListStyle(node *ast.Node, attrs *[][]string) {
-	if r.Options.RenderListStyle {
-		switch node.ListData.Typ {
-		case 0:
-			*attrs = append(*attrs, []string{"data-style", string(node.ListData.Marker)})
-		case 1:
-			*attrs = append(*attrs, []string{"data-style", strconv.Itoa(node.ListData.Num) + string(node.ListData.Delimiter)})
-		case 3:
-			if 0 == node.ListData.BulletChar {
-				*attrs = append(*attrs, []string{"data-style", strconv.Itoa(node.ListData.Num) + string(node.ListData.Delimiter)})
-			} else {
-				*attrs = append(*attrs, []string{"data-style", string(node.ListData.Marker)})
-			}
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func (r *BaseRenderer) tagSrc(tokens []byte) []byte {
-	if srcIndex := bytes.Index(tokens, []byte("src=\"")); 0 > srcIndex {
-		return nil
-	} else {
-		src := tokens[srcIndex+len("src=\""):]
-		src = src[:bytes.Index(src, []byte("\""))]
-		src = bytes.ReplaceAll(src, []byte("&amp;"), []byte("&"))
-		return src
-	}
-}
+func (r *BaseRenderer) tagSrc(tokens []byte) []byte { _ = "STUB: not implemented"; return nil }
 
 func (r *BaseRenderer) replaceSrc(tokens []byte, src string) []byte {
-	h := util.ParseHTML(string(tokens))
-	if nil == h {
-		return tokens
-	}
-
-	h = h.FirstChild
-	util.SetDomAttrValue(h, "src", src)
-	return util.DomHTML(h)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (r *BaseRenderer) tagSrcPath(tokens []byte) []byte {
-	if srcIndex := bytes.Index(tokens, []byte("src=\"")); 0 < srcIndex {
-		src := tokens[srcIndex+len("src=\""):]
-		if 1 > len(bytes.ReplaceAll(src, editor.CaretTokens, nil)) {
-			return tokens
-		}
-		targetSrc := r.LinkPath(src)
-		originSrc := string(targetSrc)
-		if bytes.HasPrefix(targetSrc, []byte("//")) {
-			originSrc = "https:" + originSrc
-		}
-		tokens = bytes.ReplaceAll(tokens, src, []byte(originSrc))
-	}
-	return tokens
-}
+func (r *BaseRenderer) tagSrcPath(tokens []byte) []byte { _ = "STUB: not implemented"; return nil }
 
 func (r *BaseRenderer) isLastNode(treeRoot, node *ast.Node) bool {
-	if treeRoot == node || nil == node || nil == node.Parent {
-		return true
-	}
-	if nil != node.Next {
-		return false
-	}
-	if ast.NodeDocument == node.Parent.Type {
-		return treeRoot.LastChild == node
-	}
-
-	var n *ast.Node
-	for n = node.Parent; ; n = n.Parent {
-		if nil == n || nil == n.Parent {
-			return true
-		}
-		if ast.NodeDocument == n.Parent.Type {
-			break
-		}
-	}
-	return treeRoot.LastChild == n
+	_ = "STUB: not implemented"
+	return false
 }
 
-func (r *BaseRenderer) NodeID(node *ast.Node) (ret string) {
-	for _, kv := range node.KramdownIAL {
-		if "id" == kv[0] {
-			return kv[1]
-		}
-	}
-	return ast.NewNodeID()
-}
+func (r *BaseRenderer) NodeID(node *ast.Node) (ret string) { _ = "STUB: not implemented"; return "" }
 
 func (r *BaseRenderer) NodeAttrs(node *ast.Node) (ret [][]string) {
-	for _, kv := range node.KramdownIAL {
-		if "id" == kv[0] {
-			continue
-		}
-		ret = append(ret, kv)
-	}
-	return
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (r *BaseRenderer) NodeAttrsStr(node *ast.Node) (ret string) {
-	for _, kv := range node.KramdownIAL {
-		if "id" == kv[0] {
-			continue
-		}
-		ret += kv[0] + "=\"" + kv[1] + "\" "
-	}
-	if "" != ret {
-		ret = ret[:len(ret)-1]
-	}
-	return
+	_ = "STUB: not implemented"
+	return ""
 }
 
 // languagesNoHighlight 中定义的语言不要进行代码语法高亮。这些代码块会在前端进行渲染，比如各种图表。
 var languagesNoHighlight = []string{"mermaid", "echarts", "abc", "graphviz", "mindmap", "flowchart", "plantuml", "infographic"}
 
-func NoHighlight(language string) bool {
-	if "" == language {
-		return false
-	}
+func NoHighlight(language string) bool { _ = "STUB: not implemented"; return false }
 
-	for _, langNoHighlight := range languagesNoHighlight {
-		if language == langNoHighlight {
-			return true
-		}
-	}
+func (r *BaseRenderer) Text(node *ast.Node) (ret string) { _ = "STUB: not implemented"; return "" }
+
+func (r *BaseRenderer) ParagraphContainImgOnly(paragraph *ast.Node) (ret bool) {
+	_ = "STUB: not implemented"
 	return false
 }
 
-func (r *BaseRenderer) Text(node *ast.Node) (ret string) {
-	ast.Walk(node, func(n *ast.Node, entering bool) ast.WalkStatus {
-		if entering {
-			switch n.Type {
-			case ast.NodeText, ast.NodeLinkText, ast.NodeLinkDest, ast.NodeLinkSpace, ast.NodeLinkTitle, ast.NodeCodeBlockCode,
-				ast.NodeCodeSpanContent, ast.NodeInlineMathContent, ast.NodeMathBlockContent, ast.NodeYamlFrontMatterContent,
-				ast.NodeHTMLBlock, ast.NodeInlineHTML, ast.NodeEmojiAlias, ast.NodeFileAnnotationRefText, ast.NodeFileAnnotationRefSpace,
-				ast.NodeBlockRefText, ast.NodeBlockRefDynamicText, ast.NodeBlockRefSpace,
-				ast.NodeKramdownSpanIAL:
-				ret += string(n.Tokens)
-			case ast.NodeCodeBlockFenceInfoMarker:
-				ret += string(n.CodeBlockInfo)
-			case ast.NodeLink:
-				if 3 == n.LinkType {
-					ret += string(n.LinkRefLabel)
-				}
-			}
-		}
-		return ast.WalkContinue
-	})
-	return
-}
-
-func (r *BaseRenderer) ParagraphContainImgOnly(paragraph *ast.Node) (ret bool) {
-	ret = true
-	containImg := false
-	ast.Walk(paragraph, func(n *ast.Node, entering bool) ast.WalkStatus {
-		if !entering {
-			return ast.WalkContinue
-		}
-
-		if ast.NodeText == n.Type {
-			if !util.IsEmptyStr(string(n.Tokens)) {
-				ret = false
-				return ast.WalkStop
-			}
-		} else if ast.NodeTextMark == n.Type {
-			ret = false
-			return ast.WalkStop
-		} else if ast.NodeImage == n.Type {
-			containImg = true
-		}
-		return ast.WalkContinue
-	})
-
-	ret = containImg && ret
-	return
-}
-
 func (r *BaseRenderer) needUseHTMLTable(table *ast.Node) (ret bool) {
-	ast.Walk(table, func(n *ast.Node, entering bool) ast.WalkStatus {
-		if !entering {
-			return ast.WalkContinue
-		}
-
-		if ast.NodeTable == n.Type {
-			if "" != n.IALAttr("caption") {
-				ret = true
-				return ast.WalkStop
-			}
-		} else if ast.NodeTableCell == n.Type {
-			for _, kv := range n.KramdownIAL {
-				if ("colspan" == kv[0] || "rowspan" == kv[0]) && "1" != kv[1] {
-					ret = true
-					return ast.WalkStop
-				}
-			}
-		}
-		return ast.WalkContinue
-	})
-	return
+	_ = "STUB: not implemented"
+	return false
 }
 
-func RenderHeadingText(n *ast.Node) (ret string) {
-	buf := &bytes.Buffer{}
-	ast.Walk(n, func(n *ast.Node, entering bool) ast.WalkStatus {
-		if !entering {
-			return ast.WalkContinue
-		}
-
-		switch n.Type {
-		case ast.NodeLinkText, ast.NodeBlockRefText, ast.NodeBlockRefDynamicText, ast.NodeFileAnnotationRefText:
-			buf.Write(n.Tokens)
-		case ast.NodeInlineMathContent:
-			buf.WriteString("<span class=\"language-math\">")
-			buf.Write(html.EscapeHTML(n.Tokens))
-			buf.WriteString("</span>")
-		case ast.NodeCodeSpanContent:
-			buf.WriteString("<code>")
-			buf.Write(html.EscapeHTML(n.Tokens))
-			buf.WriteString("</code>")
-		case ast.NodeText:
-			if n.ParentIs(ast.NodeStrong) {
-				buf.WriteString("<strong>")
-				buf.Write(html.EscapeHTML(n.Tokens))
-				buf.WriteString("</strong>")
-			} else if n.ParentIs(ast.NodeEmphasis) {
-				buf.WriteString("<em>")
-				buf.Write(html.EscapeHTML(n.Tokens))
-				buf.WriteString("</em>")
-			} else {
-				if nil != n.Previous && ast.NodeInlineHTML == n.Previous.Type {
-					if !bytes.HasPrefix(n.Previous.Tokens, []byte("</")) {
-						buf.Write(n.Previous.Tokens)
-						buf.Write(html.EscapeHTML(n.Tokens))
-					} else {
-						buf.Write(n.Previous.Tokens)
-						buf.Write(html.EscapeHTML(n.Tokens))
-					}
-				} else {
-					buf.Write(html.EscapeHTML(n.Tokens))
-				}
-			}
-		}
-		return ast.WalkContinue
-	})
-	return buf.String()
-}
+func RenderHeadingText(n *ast.Node) (ret string) { _ = "STUB: not implemented"; return "" }

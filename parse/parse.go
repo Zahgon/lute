@@ -14,134 +14,31 @@ import (
 	"sync"
 
 	"github.com/88250/lute/ast"
-	"github.com/88250/lute/editor"
 	"github.com/88250/lute/lex"
 )
 
 // Parse 会将 markdown 原始文本字节数组解析为一棵语法树。
 func Parse(name string, markdown []byte, options *Options) (tree *Tree) {
-	tree = &Tree{Name: name, Context: &Context{ParseOption: options}}
-	tree.Context.Tree = tree
-	tree.lexer = lex.NewLexer(markdown)
-	tree.Root = &ast.Node{Type: ast.NodeDocument}
-	tree.parseBlocks()
-	tree.parseInlines()
-	tree.finalParseBlockIAL()
-	tree.lexer = nil
-	return
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (t *Tree) finalParseBlockIAL() {
-	if !t.Context.ParseOption.KramdownBlockIAL {
-		return
-	}
+func (t *Tree) finalParseBlockIAL() { _ = "STUB: not implemented"; return }
 
-	// 补全空段落
-	var appends []*ast.Node
+// 补全空段落
 
-	ast.Walk(t.Root, func(n *ast.Node, entering bool) ast.WalkStatus {
-		if !entering || !n.IsBlock() || ast.NodeKramdownBlockIAL == n.Type {
-			return ast.WalkContinue
-		}
-
-		if ast.NodeBlockquote == n.Type && nil != n.FirstChild && nil == n.FirstChild.Next {
-			appends = append(appends, n)
-		}
-
-		if "" == n.ID {
-			id := n.IALAttr("id")
-			if "" == id {
-				id = ast.NewNodeID()
-			}
-			n.ID = id
-
-			if t.Context.ParseOption.ProtyleWYSIWYG && t.Context.ParseOption.Spin &&
-				ast.NodeDocument != n.Type && nil != n.Next && ast.NodeKramdownBlockIAL != n.Next.Type && "" != n.Next.ID {
-				// 这个节点是 spin 后新生成的，将 n.Next 的 ID 和属性赋予它，并认为 n.Next 是新节点 https://github.com/siyuan-note/siyuan/issues/5723
-				n.ID = n.Next.ID
-				n.KramdownIAL = n.Next.KramdownIAL
-				if "" == n.IALAttr("updated") {
-					n.SetIALAttr("updated", n.ID[:14])
-				}
-				n.Next.ID = ast.NewNodeID()
-				n.Next.KramdownIAL = nil
-				n.Next.SetIALAttr("id", n.Next.ID)
-				n.Next.SetIALAttr("updated", n.Next.ID[:14])
-				if nil != n.Next.Next && ast.NodeKramdownBlockIAL == n.Next.Next.Type {
-					n.Next.Next.Tokens = IAL2Tokens(n.Next.KramdownIAL)
-				}
-				n.InsertAfter(&ast.Node{Type: ast.NodeKramdownBlockIAL, Tokens: IAL2Tokens(n.KramdownIAL)})
-				return ast.WalkContinue
-			}
-		}
-
-		ial := n.Next
-		if nil == ial || ast.NodeKramdownBlockIAL != ial.Type {
-			if t.Context.ParseOption.ProtyleWYSIWYG {
-				n.SetIALAttr("id", n.ID)
-				n.SetIALAttr("updated", n.ID[:14])
-			}
-			return ast.WalkContinue
-		}
-
-		n.KramdownIAL = Tokens2IAL(ial.Tokens)
-		if "" == n.IALAttr("updated") && t.Context.ParseOption.ProtyleWYSIWYG {
-			n.SetIALAttr("updated", n.ID[:14])
-			ial.Tokens = IAL2Tokens(n.KramdownIAL)
-		}
-		return ast.WalkContinue
-	})
-
-	for _, n := range appends {
-		id := ast.NewNodeID()
-		ialTokens := []byte("{: id=\"" + id + "\"}")
-		p := &ast.Node{Type: ast.NodeParagraph, ID: id}
-		p.KramdownIAL = [][]string{{"id", id}, {"updated", id[:14]}}
-		p.ID = id
-		p.InsertAfter(&ast.Node{Type: ast.NodeKramdownBlockIAL, Tokens: ialTokens})
-		if nil != n.Next && ast.NodeKramdownBlockIAL == n.Next.Type &&
-			ast.NodeBlockquote == n.Type && nil != n.FirstChild && ast.NodeBlockquoteMarker == n.FirstChild.Type &&
-			nil == n.FirstChild.Next {
-			text := &ast.Node{Type: ast.NodeText, Tokens: editor.CaretTokens}
-			p.AppendChild(text)
-		}
-		n.AppendChild(p)
-	}
-
-	var docIAL *ast.Node
-	var id string
-	if nil != t.Context.rootIAL {
-		docIAL = t.Context.rootIAL
-	} else {
-		id = ast.NewNodeID()
-		docIAL = &ast.Node{Type: ast.NodeKramdownBlockIAL, Tokens: []byte("{: id=\"" + id + "\" updated=\"" + id[:14] + "\" type=\"doc\"}")}
-		t.Root.ID = id
-		t.ID = id
-	}
-	t.Root.AppendChild(docIAL)
-}
+// 这个节点是 spin 后新生成的，将 n.Next 的 ID 和属性赋予它，并认为 n.Next 是新节点 https://github.com/siyuan-note/siyuan/issues/5723
 
 // Block 会将 markdown 原始文本字节数组解析为一棵语法树，该语法树的第一个块级子节点是段落节点。
 func Block(name string, markdown []byte, options *Options) (tree *Tree) {
-	tree = &Tree{Name: name, Context: &Context{ParseOption: options}}
-	tree.Context.Tree = tree
-	tree.lexer = lex.NewLexer(markdown)
-	tree.Root = &ast.Node{Type: ast.NodeDocument}
-	tree.parseBlocks()
-	tree.finalParseBlockIAL()
-	tree.lexer = nil
-	return
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Inline 会将 markdown 原始文本字节数组解析为一棵语法树，该语法树的第一个块级子节点是段落节点。
 func Inline(name string, markdown []byte, options *Options) (tree *Tree) {
-	tree = &Tree{Name: name, Context: &Context{ParseOption: options}}
-	tree.Context.Tree = tree
-	tree.Root = &ast.Node{Type: ast.NodeDocument}
-	tree.Root.AppendChild(&ast.Node{Type: ast.NodeParagraph, Tokens: markdown})
-	tree.parseInlines()
-	tree.lexer = nil
-	return
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // Context 用于维护块级元素解析过程中使用到的公共数据。
@@ -170,153 +67,46 @@ type InlineContext struct {
 }
 
 // advanceOffset 用于移动 count 个字符位置，columns 指定了遇到 tab 时是否需要空格进行补偿偏移。
-func (context *Context) advanceOffset(count int, columns bool) {
-	currentLine := context.currentLine
-	var charsToTab, charsToAdvance int
-	var c byte
-	for 0 < count {
-		c = currentLine[context.offset]
-		if lex.ItemTab == c {
-			charsToTab = 4 - (context.column % 4)
-			if columns {
-				context.partiallyConsumedTab = charsToTab > count
-				if context.partiallyConsumedTab {
-					charsToAdvance = count
-				} else {
-					charsToAdvance = charsToTab
-					context.offset++
-				}
-				context.column += charsToAdvance
-				count -= charsToAdvance
-			} else {
-				context.partiallyConsumedTab = false
-				context.column += charsToTab
-				context.offset++
-				count--
-			}
-		} else {
-			context.partiallyConsumedTab = false
-			context.offset++
-			context.column++ // 假定是 ASCII，因为块开始标记符都是 ASCII
-			count--
-		}
-	}
-}
+func (context *Context) advanceOffset(count int, columns bool) { _ = "STUB: not implemented"; return }
+
+// 假定是 ASCII，因为块开始标记符都是 ASCII
 
 // advanceNextNonspace 用于预移动到下一个非空字符位置。
-func (context *Context) advanceNextNonspace() {
-	context.offset = context.nextNonspace
-	context.column = context.nextNonspaceColumn
-	context.partiallyConsumedTab = false
-}
+func (context *Context) advanceNextNonspace() { _ = "STUB: not implemented"; return }
 
 // findNextNonspace 用于查找下一个非空字符。
-func (context *Context) findNextNonspace() {
-	i := context.offset
-	cols := context.column
-
-	var token byte
-	for {
-		token = context.currentLine[i]
-		if lex.ItemSpace == token {
-			i++
-			cols++
-		} else if lex.ItemTab == token {
-			i++
-			cols += 4 - (cols % 4)
-		} else {
-			break
-		}
-	}
-
-	context.blank = lex.ItemNewline == token
-	context.nextNonspace = i
-	context.nextNonspaceColumn = cols
-	context.indent = context.nextNonspaceColumn - context.column
-	context.indented = 4 <= context.indent
-}
+func (context *Context) findNextNonspace() { _ = "STUB: not implemented"; return }
 
 // closeUnmatchedBlocks 最终化所有未匹配的块节点。
-func (context *Context) closeUnmatchedBlocks() {
-	if !context.allClosed {
-		for context.oldtip != context.lastMatchedContainer {
-			parent := context.oldtip.Parent
-			context.finalize(context.oldtip)
-			context.oldtip = parent
-		}
-		context.allClosed = true
-	}
-}
+func (context *Context) closeUnmatchedBlocks() { _ = "STUB: not implemented"; return }
 
 // closeSuperBlockChildren 最终化超级块下的子节点。
-func (context *Context) closeSuperBlockChildren() {
-	for n := context.Tip; nil != n && ast.NodeSuperBlock != n.Type; n = n.Parent {
-		context.finalize(n)
-	}
-}
+func (context *Context) closeSuperBlockChildren() { _ = "STUB: not implemented"; return }
 
 // finalize 执行 block 的最终化处理。调用该方法会将 context.Tip 置为 block 的父节点。
-func (context *Context) finalize(block *ast.Node) {
-	parent := block.Parent
-	block.Close = true
+func (context *Context) finalize(block *ast.Node) { _ = "STUB: not implemented"; return }
 
-	// 节点最终化处理。比如围栏代码块提取 info 部分；HTML 代码块剔除结尾空格；段落需要解析链接引用定义等。
-	switch block.Type {
-	case ast.NodeCodeBlock:
-		context.codeBlockFinalize(block)
-	case ast.NodeHTMLBlock, ast.NodeIFrame, ast.NodeVideo, ast.NodeAudio, ast.NodeWidget:
-		context.htmlBlockFinalize(block)
-	case ast.NodeParagraph:
-		insertTable := paragraphFinalize(block, context)
-		if insertTable {
-			return
-		}
-	case ast.NodeMathBlock:
-		context.mathBlockFinalize(block)
-	case ast.NodeYamlFrontMatter:
-		context.yamlFrontMatterFinalize(block)
-	case ast.NodeList:
-		context.listFinalize(block)
-	case ast.NodeSuperBlock:
-		context.superBlockFinalize(block)
-	case ast.NodeGitConflict:
-		context.gitConflictFinalize(block)
-	case ast.NodeCustomBlock:
-		context.customBlockFinalize(block)
-	case ast.NodeCallout:
-		context.calloutFinalize(block)
-	case ast.NodeBlockquote:
-		context.blockquoteFinalize(block)
-	}
-
-	context.Tip = parent
-}
+// 节点最终化处理。比如围栏代码块提取 info 部分；HTML 代码块剔除结尾空格；段落需要解析链接引用定义等。
 
 // addChildMarker 将构造一个 NodeType 节点并作为子节点添加到末梢节点 context.Tip 上。
 func (context *Context) addChildMarker(nodeType ast.NodeType, tokens []byte) (ret *ast.Node) {
-	ret = &ast.Node{Type: nodeType, Tokens: tokens, Close: true}
-	context.Tip.AppendChild(ret)
-	return
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // addChild 将构造一个 NodeType 节点并作为子节点添加到末梢节点 context.Tip 上。如果末梢不能接受子节点（非块级容器不能添加子节点），则最终化该末梢
 // 节点并向父节点方向尝试，直到找到一个能接受该子节点的节点为止。添加完成后该子节点会被设置为新的末梢节点。
 func (context *Context) addChild(nodeType ast.NodeType) (ret *ast.Node) {
-	for !context.Tip.CanContain(nodeType) {
-		context.finalize(context.Tip) // 注意调用 finalize 会向父节点方向进行迭代
-	}
-
-	ret = &ast.Node{Type: nodeType}
-	context.Tip.AppendChild(ret)
-	context.Tip = ret
-	return
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// 注意调用 finalize 会向父节点方向进行迭代
 
 // listsMatch 用户判断指定的 listData 和 itemData 是否可归属于同一个列表。
 func (context *Context) listsMatch(listData, itemData *ast.ListData) bool {
-	return listData.Typ == itemData.Typ &&
-		((0 == listData.Delimiter && 0 == itemData.Delimiter) || listData.Delimiter == itemData.Delimiter) &&
-		listData.BulletChar == itemData.BulletChar
+	_ = "STUB: not implemented"
+	return false
 }
 
 // Tree 描述了 Markdown 抽象语法树结构。
@@ -445,47 +235,14 @@ type Options struct {
 // IsValidTaskListItemMarker 判断 marker 是否是合法的任务列表项标记符。
 // 当 ArbitraryTaskListItemMarker 开启时接受任意非 [] 字符，否则仅接受 ' '、'x' 和 'X'。
 func (options *Options) IsValidTaskListItemMarker(marker byte) bool {
-	return (' ' == marker || 'x' == marker || 'X' == marker) ||
-		(options.ArbitraryTaskListItemMarker && '[' != marker && ']' != marker)
+	_ = "STUB: not implemented"
+	return false
 }
 
 var EmojiLock = sync.Mutex{}
 
-func NewOptions() *Options {
-	return &Options{
-		GFMTable:          true,
-		GFMTaskListItem:   true,
-		GFMStrikethrough:  true,
-		GFMStrikethrough1: true,
-		GFMAutoLink:       true,
-		Footnotes:         true,
-		Emoji:             true,
-		AliasEmoji:        EmojiAliasUnicode,
-		EmojiAlias:        EmojiUnicodeAlias,
-		EmojiSite:         "https://cdn.jsdelivr.net/npm/vditor/dist/images/emoji",
-		InlineMath:        true,
-		Setext:            true,
-		YamlFrontMatter:   true,
-		BlockRef:          false,
-		FileAnnotationRef: false,
-		Mark:              false,
-		InlineAsterisk:    true,
-		InlineUnderscore:  true,
-		KramdownBlockIAL:  false,
-		HeadingID:         true,
-		LinkRef:           true,
-		IndentCodeBlock:   true,
-		DataImage:         true,
-		Callout:           false,
-	}
-}
+func NewOptions() *Options { _ = "STUB: not implemented"; return nil }
 
-func (context *Context) ParentTip() {
-	if tip := context.Tip.Parent; nil != tip {
-		context.Tip = context.Tip.Parent
-	}
-}
+func (context *Context) ParentTip() { _ = "STUB: not implemented"; return }
 
-func (context *Context) TipAppendChild(child *ast.Node) {
-	context.Tip.AppendChild(child)
-}
+func (context *Context) TipAppendChild(child *ast.Node) { _ = "STUB: not implemented"; return }

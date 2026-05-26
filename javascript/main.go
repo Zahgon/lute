@@ -38,35 +38,8 @@ func main() {
 }
 
 func New(options map[string]map[string]*js.Object) *js.Object {
-	engine := lute.New()
-	engine.SetJSRenderers(options)
-	return js.MakeWrapper(engine)
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func BlockDOM2Content(dom string) string {
-	luteEngine := lute.New()
-	luteEngine.SetProtyleWYSIWYG(true)
-	luteEngine.SetBlockRef(true)
-	luteEngine.SetFileAnnotationRef(true)
-	luteEngine.SetKramdownIAL(true)
-	luteEngine.SetTag(true)
-	luteEngine.SetSuperBlock(true)
-	luteEngine.SetImgPathAllowSpace(true)
-	luteEngine.SetGitConflict(true)
-	luteEngine.SetMark(true)
-	luteEngine.SetSup(true)
-	luteEngine.SetSub(true)
-	luteEngine.SetInlineMathAllowDigitAfterOpenMarker(true)
-	luteEngine.SetFootnotes(false)
-	luteEngine.SetToC(false)
-	luteEngine.SetIndentCodeBlock(false)
-	luteEngine.SetParagraphBeginningSpace(true)
-	luteEngine.SetAutoSpace(false)
-	luteEngine.SetHeadingID(false)
-	luteEngine.SetSetext(false)
-	luteEngine.SetYamlFrontMatter(false)
-	luteEngine.SetLinkRef(false)
-	luteEngine.SetCodeSyntaxHighlight(false)
-	luteEngine.SetSanitize(true)
-	return luteEngine.BlockDOM2Content(dom)
-}
+func BlockDOM2Content(dom string) string { _ = "STUB: not implemented"; return "" }

@@ -4,12 +4,6 @@
 
 package html
 
-import (
-	"bytes"
-	"strings"
-	"unicode/utf8"
-)
-
 // These replacements permit compatibility with old numeric entities that
 // assumed Windows-1252 encoding.
 // https://html.spec.whatwg.org/multipage/syntax.html#consume-a-character-reference
@@ -55,205 +49,54 @@ var replacementTable = [...]rune{
 // Precondition: b[src] == '&' && dst <= src.
 // attribute should be true if parsing an attribute value.
 func unescapeEntity(b []byte, dst, src int, attribute bool) (dst1, src1 int) {
+	_ = "STUB: not implemented"
 	// https://html.spec.whatwg.org/multipage/syntax.html#consume-a-character-reference
-
-	// i starts at 1 because we already know that s[0] == '&'.
-	i, s := 1, b[src:]
-
-	if len(s) <= 1 {
-		b[dst] = b[src]
-		return dst + 1, src + 1
-	}
-
-	if s[i] == '#' {
-		if len(s) <= 3 { // We need to have at least "&#.".
-			b[dst] = b[src]
-			return dst + 1, src + 1
-		}
-		i++
-		c := s[i]
-		hex := false
-		if c == 'x' || c == 'X' {
-			hex = true
-			i++
-		}
-
-		x := '\x00'
-		for i < len(s) {
-			c = s[i]
-			i++
-			if hex {
-				if '0' <= c && c <= '9' {
-					x = 16*x + rune(c) - '0'
-					continue
-				} else if 'a' <= c && c <= 'f' {
-					x = 16*x + rune(c) - 'a' + 10
-					continue
-				} else if 'A' <= c && c <= 'F' {
-					x = 16*x + rune(c) - 'A' + 10
-					continue
-				}
-			} else if '0' <= c && c <= '9' {
-				x = 10*x + rune(c) - '0'
-				continue
-			}
-			if c != ';' {
-				i--
-			}
-			break
-		}
-
-		if i <= 3 { // No characters matched.
-			b[dst] = b[src]
-			return dst + 1, src + 1
-		}
-
-		if 0x80 <= x && x <= 0x9F {
-			// Replace characters from Windows-1252 with UTF-8 equivalents.
-			x = replacementTable[x-0x80]
-		} else if x == 0 || (0xD800 <= x && x <= 0xDFFF) || x > 0x10FFFF {
-			// Replace invalid characters with the replacement character.
-			x = '\uFFFD'
-		}
-
-		return dst + utf8.EncodeRune(b[dst:], x), src + i
-	}
-
-	// Consume the maximum number of characters possible, with the
-	// consumed characters matching one of the named references.
-
-	for i < len(s) {
-		c := s[i]
-		i++
-		// Lower-cased characters are more common in entities, so we check for them first.
-		if 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z' || '0' <= c && c <= '9' {
-			continue
-		}
-		if c != ';' {
-			i--
-		}
-		break
-	}
-
-	max := i
-	if max < 1 {
-		max = 1
-	}
-	entityName := string(s[1:max])
-	if entityName == "" {
-		// No-op.
-	} else if attribute && entityName[len(entityName)-1] != ';' && len(s) > i && s[i] == '=' {
-		// No-op.
-	} else if x := Entities[entityName]; x != "" {
-		return dst + utf8.EncodeRune(b[dst:], []rune(x)[0]), src + i
-	} else if !attribute {
-		maxLen := len(entityName) - 1
-		if maxLen > 6 {
-			maxLen = 6
-		}
-		for j := maxLen; j > 1; j-- {
-			if x := Entities[entityName[:j]]; x != "" {
-				return dst + utf8.EncodeRune(b[dst:], []rune(x)[0]), src + j + 1
-			}
-		}
-	}
-
-	dst1, src1 = dst+i, src+i
-	copy(b[dst:dst1], b[src:src1])
-	return dst1, src1
+	return 0, 0
 }
+
+// i starts at 1 because we already know that s[0] == '&'.
+
+// We need to have at least "&#.".
+
+// No characters matched.
+
+// Replace characters from Windows-1252 with UTF-8 equivalents.
+
+// Replace invalid characters with the replacement character.
+
+// Consume the maximum number of characters possible, with the
+// consumed characters matching one of the named references.
+
+// Lower-cased characters are more common in entities, so we check for them first.
+
+// No-op.
+
+// No-op.
 
 // unescape unescapes b's entities in-place, so that "a&lt;b" becomes "a<b".
 // attribute should be true if parsing an attribute value.
-func unescape(b []byte, attribute bool) []byte {
-	for i, c := range b {
-		if c == '&' {
-			dst, src := unescapeEntity(b, i, i, attribute)
-			for src < len(b) {
-				c := b[src]
-				if c == '&' {
-					dst, src = unescapeEntity(b, dst, src, attribute)
-				} else {
-					b[dst] = c
-					dst, src = dst+1, src+1
-				}
-			}
-			return b[0:dst]
-		}
-	}
-	return b
-}
+func unescape(b []byte, attribute bool) []byte { _ = "STUB: not implemented"; return nil }
 
 // lower lower-cases the A-Z bytes in b in-place, so that "aBc" becomes "abc".
-func lower(b []byte) []byte {
-	for i, c := range b {
-		if 'A' <= c && c <= 'Z' {
-			b[i] = c + 'a' - 'A'
-		}
-	}
-	return b
-}
+func lower(b []byte) []byte { _ = "STUB: not implemented"; return nil }
 
 const escapedChars = "&'<>\"\r"
 
-func escape(w writer, s string) error {
-	i := strings.IndexAny(s, escapedChars)
-	for i != -1 {
-		if _, err := w.WriteString(s[:i]); err != nil {
-			return err
-		}
-		var esc string
-		switch s[i] {
-		case '&':
-			esc = "&amp;"
-		case '\'':
-			// "&#39;" is shorter than "&apos;" and apos was not in HTML until HTML5.
-			esc = "&#39;"
-		case '<':
-			esc = "&lt;"
-		case '>':
-			esc = "&gt;"
-		case '"':
-			// "&#34;" is shorter than "&quot;".
-			esc = "&#34;"
-		case '\r':
-			esc = "&#13;"
-		default:
-			panic("unrecognized escape character")
-		}
-		s = s[i+1:]
-		if _, err := w.WriteString(esc); err != nil {
-			return err
-		}
-		i = strings.IndexAny(s, escapedChars)
-	}
-	_, err := w.WriteString(s)
-	return err
-}
+func escape(w writer, s string) error { _ = "STUB: not implemented"; return nil }
+
+// "&#39;" is shorter than "&apos;" and apos was not in HTML until HTML5.
+
+// "&#34;" is shorter than "&quot;".
 
 // EscapeString escapes special characters like "<" to become "&lt;". It
 // escapes only five such characters: <, >, &, ' and ".
 // UnescapeString(EscapeString(s)) == s always holds, but the converse isn't
 // always true.
-func EscapeString(s string) string {
-	if strings.IndexAny(s, escapedChars) == -1 {
-		return s
-	}
-	var buf bytes.Buffer
-	escape(&buf, s)
-	return buf.String()
-}
+func EscapeString(s string) string { _ = "STUB: not implemented"; return "" }
 
 // UnescapeString unescapes entities like "&lt;" to become "<". It unescapes a
 // larger range of entities than EscapeString escapes. For example, "&aacute;"
 // unescapes to "á", as does "&#225;" and "&xE1;".
 // UnescapeString(EscapeString(s)) == s always holds, but the converse isn't
 // always true.
-func UnescapeString(s string) string {
-	for _, c := range s {
-		if c == '&' {
-			return string(unescape([]byte(s), false))
-		}
-	}
-	return s
-}
+func UnescapeString(s string) string { _ = "STUB: not implemented"; return "" }

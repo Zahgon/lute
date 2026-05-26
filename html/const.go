@@ -93,20 +93,4 @@ var isSpecialElementMap = map[string]bool{
 	"xmp":        true,
 }
 
-func isSpecialElement(element *Node) bool {
-	switch element.Namespace {
-	case "", "html":
-		return isSpecialElementMap[element.Data]
-	case "math":
-		switch element.Data {
-		case "mi", "mo", "mn", "ms", "mtext", "annotation-xml":
-			return true
-		}
-	case "svg":
-		switch element.Data {
-		case "foreignObject", "desc", "title":
-			return true
-		}
-	}
-	return false
-}
+func isSpecialElement(element *Node) bool { _ = "STUB: not implemented"; return false }

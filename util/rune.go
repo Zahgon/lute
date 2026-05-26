@@ -10,76 +10,12 @@
 
 package util
 
-import (
-	"strings"
-	"unicode/utf8"
+func ContainsStr(str string, strs []string) bool { _ = "STUB: not implemented"; return false }
 
-	"github.com/88250/lute/editor"
-)
+func IsEmptyStr(str string) bool { _ = "STUB: not implemented"; return false }
 
-func ContainsStr(str string, strs []string) bool {
-	if 0 == len(strs) {
-		return false
-	}
-	for _, s := range strs {
-		if strings.Contains(str, s) {
-			return true
-		}
-	}
-	return false
-}
+func WordCount(str string) (runeCount, wordCount int) { _ = "STUB: not implemented"; return 0, 0 }
 
-func IsEmptyStr(str string) bool {
-	str = strings.ReplaceAll(str, editor.Zwsp, "")
-	str = strings.ReplaceAll(str, editor.Zwj, "")
-	return 0 == len(strings.TrimSpace(str))
-}
+func wordCount0(str string) (runeCount, wordCount int) { _ = "STUB: not implemented"; return 0, 0 }
 
-func WordCount(str string) (runeCount, wordCount int) {
-	words := strings.Fields(str)
-	for _, word := range words {
-		r, w := wordCount0(word)
-		runeCount += r
-		wordCount += w
-	}
-	return
-}
-
-func wordCount0(str string) (runeCount, wordCount int) {
-	runes := []rune(str)
-	length := len(runes)
-	if 1 > length {
-		return
-	}
-
-	runeCount, wordCount = 1, 1
-	isAscii := runes[0] < utf8.RuneSelf
-	for i := 1; i < length; i++ {
-		r := runes[i]
-		runeCount++
-		if r >= utf8.RuneSelf {
-			wordCount++
-			isAscii = false
-			continue
-		}
-
-		if r < utf8.RuneSelf == isAscii {
-			continue
-		}
-		wordCount++
-		isAscii = !isAscii
-	}
-	return
-}
-
-func IsDigit(str string) bool {
-	if 0 == len(str) {
-		return false
-	}
-	for _, r := range str {
-		if r < '0' || r > '9' {
-			return false
-		}
-	}
-	return true
-}
+func IsDigit(str string) bool { _ = "STUB: not implemented"; return false }

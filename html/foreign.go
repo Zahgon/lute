@@ -4,68 +4,16 @@
 
 package html
 
-import (
-	"strings"
-)
-
 func adjustAttributeNames(aa []*Attribute, nameMap map[string]string) {
-	for i := range aa {
-		if newName, ok := nameMap[aa[i].Key]; ok {
-			aa[i].Key = newName
-		}
-	}
+	_ = "STUB: not implemented"
+	return
 }
 
-func adjustForeignAttributes(aa []*Attribute) {
-	for i, a := range aa {
-		if a.Key == "" || a.Key[0] != 'x' {
-			continue
-		}
-		switch a.Key {
-		case "xlink:actuate", "xlink:arcrole", "xlink:href", "xlink:role", "xlink:show",
-			"xlink:title", "xlink:type", "xml:base", "xml:lang", "xml:space", "xmlns:xlink":
-			j := strings.Index(a.Key, ":")
-			aa[i].Namespace = a.Key[:j]
-			aa[i].Key = a.Key[j+1:]
-		}
-	}
-}
+func adjustForeignAttributes(aa []*Attribute) { _ = "STUB: not implemented"; return }
 
-func htmlIntegrationPoint(n *Node) bool {
-	if n.Type != ElementNode {
-		return false
-	}
-	switch n.Namespace {
-	case "math":
-		if n.Data == "annotation-xml" {
-			for _, a := range n.Attr {
-				if a.Key == "encoding" {
-					val := strings.ToLower(a.Val)
-					if val == "text/html" || val == "application/xhtml+xml" {
-						return true
-					}
-				}
-			}
-		}
-	case "svg":
-		switch n.Data {
-		case "desc", "foreignObject", "title":
-			return true
-		}
-	}
-	return false
-}
+func htmlIntegrationPoint(n *Node) bool { _ = "STUB: not implemented"; return false }
 
-func mathMLTextIntegrationPoint(n *Node) bool {
-	if n.Namespace != "math" {
-		return false
-	}
-	switch n.Data {
-	case "mi", "mo", "mn", "ms", "mtext":
-		return true
-	}
-	return false
-}
+func mathMLTextIntegrationPoint(n *Node) bool { _ = "STUB: not implemented"; return false }
 
 // Section 12.2.6.5.
 var breakout = map[string]bool{

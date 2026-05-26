@@ -11,316 +11,80 @@
 package parse
 
 import (
-	"bytes"
-	"strings"
-
 	"github.com/88250/lute/ast"
-	"github.com/88250/lute/editor"
-	"github.com/88250/lute/html"
 	"github.com/88250/lute/util"
 )
 
 // IALStart 判断 kramdown 块级内联属性列表（{: attrs}）是否开始。
-func IALStart(t *Tree, container *ast.Node) int {
-	if !t.Context.ParseOption.KramdownBlockIAL || t.Context.indented {
-		return 0
-	}
+func IALStart(t *Tree, container *ast.Node) int { _ = "STUB: not implemented"; return 0 }
 
-	if ast.NodeListItem == t.Context.Tip.Type && nil == t.Context.Tip.FirstChild { // 在列表最终化过程中处理
-		return 0
-	}
+// 在列表最终化过程中处理
 
-	if ial := t.parseKramdownBlockIAL(); nil != ial {
-		t.Context.closeUnmatchedBlocks()
-		t.Context.offset = t.Context.currentLineLen // 整行过
-		if util.IsDocIAL2(ial) {                    // 文档块 IAL
-			t.Context.rootIAL = &ast.Node{Type: ast.NodeKramdownBlockIAL, Tokens: t.Context.currentLine[t.Context.nextNonspace:]}
-			t.Root.KramdownIAL = ial
-			t.Root.ID = ial[0][1]
-			t.ID = t.Root.ID
-			return 2
-		}
+// 整行过
+// 文档块 IAL
 
-		lastMatchedContainer := t.Context.lastMatchedContainer
-		if t.Context.allClosed {
-			if ast.NodeDocument == lastMatchedContainer.Type || ast.NodeListItem == lastMatchedContainer.Type || ast.NodeBlockquote == lastMatchedContainer.Type || ast.NodeCallout == lastMatchedContainer.Type || ast.NodeSuperBlock == lastMatchedContainer.Type {
-				lastMatchedContainer = t.Context.Tip.LastChild // 挂到最后一个子块上
-				if nil == lastMatchedContainer {
-					lastMatchedContainer = t.Context.lastMatchedContainer
-				}
-				if (ast.NodeSuperBlockLayoutMarker == lastMatchedContainer.Type || // 三个空块合并的超级块导出模版后使用会变成两个块  https://github.com/siyuan-note/siyuan/issues/4692
-					ast.NodeKramdownBlockIAL == lastMatchedContainer.Type) &&
-					nil != lastMatchedContainer.Parent { // 两个连续的 IAL
-					tokens := IAL2Tokens(ial)
-					if !bytes.HasPrefix(lastMatchedContainer.Tokens, tokens) { // 有的块解析已经做过打断处理
-						// 在两个连续的 IAL 之间插入空段落，这样能够保持空段落
-						p := &ast.Node{Type: ast.NodeParagraph, Tokens: []byte(" ")}
-						lastMatchedContainer.InsertAfter(p)
-						t.Context.Tip = p
-						lastMatchedContainer = p
-					}
-				} else if ast.NodeBlockquoteMarker == lastMatchedContainer.Type { // 引述块下没有段落子块，需要构建一个空的段落块挂上去
-					p := &ast.Node{Type: ast.NodeParagraph, Tokens: []byte(" ")}
-					lastMatchedContainer.InsertAfter(p)
-					t.Context.Tip = p
-					lastMatchedContainer = p
-				} else if ast.NodeDocument == lastMatchedContainer.Type {
-					// 第一个节点是 IAL 的话需要保留空段落
-					p := &ast.Node{Type: ast.NodeParagraph, Tokens: []byte(" ")}
-					lastMatchedContainer.AppendChild(p)
-					t.Context.Tip = p
-					lastMatchedContainer = p
-				}
-			}
-		}
-		lastMatchedContainer.KramdownIAL = ial
-		ialMap := IAL2MapUnEsc(ial)
-		lastMatchedContainer.ID = ialMap["id"]
-		node := t.Context.addChild(ast.NodeKramdownBlockIAL)
-		node.Tokens = t.Context.currentLine[t.Context.nextNonspace:]
-		return 2
-	}
-	return 0
-}
+// 挂到最后一个子块上
+
+// 三个空块合并的超级块导出模版后使用会变成两个块  https://github.com/siyuan-note/siyuan/issues/4692
+
+// 两个连续的 IAL
+
+// 有的块解析已经做过打断处理
+// 在两个连续的 IAL 之间插入空段落，这样能够保持空段落
+
+// 引述块下没有段落子块，需要构建一个空的段落块挂上去
+
+// 第一个节点是 IAL 的话需要保留空段落
 
 var openCurlyBraceColon = util.StrToBytes("{: ")
 var emptyIAL = util.StrToBytes("{:}")
 
-func IAL2Tokens(ial [][]string) []byte {
-	buf := bytes.Buffer{}
-	buf.WriteString("{: ")
-	for i, kv := range ial {
-		buf.WriteString(kv[0])
-		buf.WriteString("=\"")
-		buf.WriteString(kv[1])
-		buf.WriteByte('"')
-		if i < len(ial)-1 {
-			buf.WriteByte(' ')
-		}
-	}
-	buf.WriteByte('}')
-	return buf.Bytes()
-}
+func IAL2Tokens(ial [][]string) []byte { _ = "STUB: not implemented"; return nil }
 
-func IALVal(ial *ast.Node, name string) string {
-	array := Tokens2IAL(ial.Tokens)
-	m := IAL2Map(array)
-	return m[name]
-}
+func IALVal(ial *ast.Node, name string) string { _ = "STUB: not implemented"; return "" }
 
-func IALValMap(ial *ast.Node) (ret map[string]string) {
-	ret = map[string]string{}
-	array := Tokens2IAL(ial.Tokens)
-	ret = IAL2Map(array)
-	return
-}
+func IALValMap(ial *ast.Node) (ret map[string]string) { _ = "STUB: not implemented"; return nil }
 
-func IAL2Map(ial [][]string) (ret map[string]string) {
-	ret = map[string]string{}
-	for _, kv := range ial {
-		ret[kv[0]] = html.UnescapeAttrVal(kv[1])
-	}
-	return
-}
+func IAL2Map(ial [][]string) (ret map[string]string) { _ = "STUB: not implemented"; return nil }
 
-func IAL2MapUnEsc(ial [][]string) (ret map[string]string) {
-	ret = map[string]string{}
-	for _, kv := range ial {
-		ret[kv[0]] = kv[1]
-	}
-	return
-}
+func IAL2MapUnEsc(ial [][]string) (ret map[string]string) { _ = "STUB: not implemented"; return nil }
 
 // mergeIALPreservingOrder 保持属性顺序合并 IAL，语义上等同于 IAL2Map+Map2IAL，
 // 但不会因为 map 无序导致输出属性顺序漂移。重复 key 会被折叠，最后一个值生效。
 func mergeIALPreservingOrder(dst, src [][]string) (ret [][]string) {
-	ret = make([][]string, 0, len(dst)+len(src))
-	indexByName := make(map[string]int, len(dst)+len(src))
-	for _, kv := range dst {
-		name := kv[0]
-		value := html.UnescapeAttrVal(kv[1])
-		if idx, exists := indexByName[name]; exists {
-			ret[idx][1] = value
-			continue
-		}
-
-		indexByName[name] = len(ret)
-		ret = append(ret, []string{name, value})
-	}
-
-	for _, kv := range src {
-		name := kv[0]
-		value := html.UnescapeAttrVal(kv[1])
-		if idx, exists := indexByName[name]; exists {
-			ret[idx][1] = value
-			continue
-		}
-
-		indexByName[name] = len(ret)
-		ret = append(ret, []string{name, value})
-	}
-	return
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func Map2IAL(properties map[string]string) (ret [][]string) {
-	ret = [][]string{}
-	for k, v := range properties {
-		ret = append(ret, []string{k, v})
-	}
-	return
-}
+func Map2IAL(properties map[string]string) (ret [][]string) { _ = "STUB: not implemented"; return nil }
 
-func simpleCheckIsBlockIAL(tokens []byte) bool {
-	if len("{: id=\"") >= len(tokens) {
-		return false
-	}
-	return bytes.Contains(tokens, []byte("id=\""))
-}
+func simpleCheckIsBlockIAL(tokens []byte) bool { _ = "STUB: not implemented"; return false }
 
 func Tokens2IAL(tokens []byte) (ret [][]string) {
+	_ = "STUB: not implemented"
 	// tokens 开头必须是空格
-	tokens = bytes.TrimRight(tokens, " \n")
-	tokens = bytes.TrimPrefix(tokens, []byte("{:"))
-	tokens = bytes.TrimSuffix(tokens, []byte("}"))
-	tokens = bytes.ReplaceAll(tokens, []byte("\n"), []byte(editor.IALValEscNewLine))
-	for {
-		valid, remains, attr, name, val := TagAttr(tokens)
-		if !valid {
-			break
-		}
-
-		tokens = remains
-		if 1 > len(attr) {
-			break
-		}
-
-		val = bytes.ReplaceAll(val, []byte(editor.IALValEscNewLine), []byte("\n"))
-		ret = append(ret, []string{util.BytesToStr(name), util.BytesToStr(val)})
-	}
-	return
+	return nil
 }
 
-func (t *Tree) parseKramdownBlockIAL() (ret [][]string) {
-	tokens := t.Context.currentLine[t.Context.nextNonspace:]
-	return t.Context.parseKramdownBlockIAL(tokens)
-}
+func (t *Tree) parseKramdownBlockIAL() (ret [][]string) { _ = "STUB: not implemented"; return nil }
 
-func (t *Tree) parseKramdownSpanIAL() {
-	ast.Walk(t.Root, func(n *ast.Node, entering bool) ast.WalkStatus {
-		if !entering {
-			return ast.WalkContinue
-		}
+func (t *Tree) parseKramdownSpanIAL() { _ = "STUB: not implemented"; return }
 
-		if nil != n.Previous && ast.NodeKramdownSpanIAL == n.Previous.Type && ast.NodeText == n.Type && nil != n.Previous.Previous {
-			tokens := n.Tokens
-			if pos, ial := t.Context.parseKramdownSpanIAL(tokens); 0 < len(ial) {
-				same := true
-				for _, kv := range ial {
-					if n.Previous.Previous.IALAttr(kv[0]) != kv[1] {
-						same = false
-						break
-					}
-				}
-				if same {
-					n.Tokens = tokens[pos+1:]
-				}
-			}
-			return ast.WalkContinue
-		}
-
-		switch n.Type {
-		case ast.NodeEmphasis, ast.NodeStrong, ast.NodeCodeSpan, ast.NodeStrikethrough, ast.NodeTag, ast.NodeMark, ast.NodeInlineMath, ast.NodeImage, ast.NodeTextMark:
-			break
-		default:
-			return ast.WalkContinue
-		}
-
-		if nil == n.Next || ast.NodeText != n.Next.Type {
-			return ast.WalkContinue
-		}
-
-		tokens := n.Next.Tokens
-		if pos, ial := t.Context.parseKramdownSpanIAL(tokens); 0 < len(ial) {
-			n.KramdownIAL = ial
-			n.Next.Tokens = tokens[pos+1:]
-			if 1 > len(n.Next.Tokens) {
-				n.Next.Unlink() // 移掉空的文本节点 {: ial}
-			}
-			spanIAL := &ast.Node{Type: ast.NodeKramdownSpanIAL, Tokens: tokens[:pos+1]}
-			n.InsertAfter(spanIAL)
-		}
-		return ast.WalkContinue
-	})
-	return
-}
+// 移掉空的文本节点 {: ial}
 
 func (context *Context) parseKramdownBlockIAL(tokens []byte) (ret [][]string) {
-	if curlyBracesStart := bytes.Index(tokens, []byte("{:")); 0 == curlyBracesStart {
-		tokens = tokens[curlyBracesStart+2:]
-		curlyBracesEnd := bytes.LastIndex(tokens, closeCurlyBrace)
-		if 3 > curlyBracesEnd {
-			return
-		}
-
-		if !bytes.Equal(tokens[curlyBracesEnd:], []byte("}\n")) { // IAL 后不能存在其他内容，必须独占一行
-			return
-		}
-		ret = Tokens2IAL(tokens)
-	}
-	return
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// IAL 后不能存在其他内容，必须独占一行
+
 func (context *Context) parseKramdownSpanIAL(tokens []byte) (pos int, ret [][]string) {
-	pos = bytes.Index(tokens, closeCurlyBrace)
-	if curlyBracesStart := bytes.Index(tokens, []byte("{:")); 0 == curlyBracesStart && curlyBracesStart+2 < pos {
-		tokens = tokens[curlyBracesStart+2:]
-		curlyBracesEnd := bytes.Index(tokens, closeCurlyBrace)
-		if 3 > curlyBracesEnd {
-			return
-		}
-
-		tokens = tokens[:curlyBracesEnd]
-		for {
-			valid, remains, attr, name, val := TagAttr(tokens)
-			if !valid {
-				break
-			}
-
-			tokens = remains
-			if 1 > len(attr) {
-				break
-			}
-
-			nameStr := strings.ReplaceAll(util.BytesToStr(name), editor.Caret, "")
-			valStr := strings.ReplaceAll(util.BytesToStr(val), editor.Caret, "")
-			ret = append(ret, []string{nameStr, valStr})
-		}
-	}
-	return
+	_ = "STUB: not implemented"
+	return 0, nil
 }
 
 func (context *Context) parseKramdownIALInListItem(tokens []byte) (ret [][]string) {
-	if curlyBracesStart := bytes.Index(tokens, []byte("{:")); 0 == curlyBracesStart {
-		tokens = tokens[curlyBracesStart+2:]
-		curlyBracesEnd := bytes.Index(tokens, closeCurlyBrace)
-		if 3 > curlyBracesEnd {
-			return
-		}
-
-		tokens = tokens[:bytes.Index(tokens, []byte("}"))]
-		for {
-			valid, remains, attr, name, val := TagAttr(tokens)
-			if !valid {
-				break
-			}
-
-			tokens = remains
-			if 1 > len(attr) {
-				break
-			}
-
-			ret = append(ret, []string{util.BytesToStr(name), util.BytesToStr(val)})
-		}
-	}
-	return
+	_ = "STUB: not implemented"
+	return nil
 }

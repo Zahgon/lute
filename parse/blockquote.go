@@ -11,86 +11,17 @@
 package parse
 
 import (
-	"bytes"
-	"strings"
-
 	"github.com/88250/lute/ast"
-	"github.com/88250/lute/lex"
 )
 
 // BlockquoteStart 判断引述（>）是否开始。
-func BlockquoteStart(t *Tree, container *ast.Node) int {
-	if t.Context.indented {
-		return 0
-	}
+func BlockquoteStart(t *Tree, container *ast.Node) int { _ = "STUB: not implemented"; return 0 }
 
-	marker := lex.Peek(t.Context.currentLine, t.Context.nextNonspace)
-	if lex.ItemGreater != marker {
-		return 0
-	}
-
-	markers := []byte{marker}
-	t.Context.advanceNextNonspace()
-	t.Context.advanceOffset(1, false)
-	// > 后面的空格是可选的
-	whitespace := lex.Peek(t.Context.currentLine, t.Context.offset)
-	withSpace := lex.ItemSpace == whitespace || lex.ItemTab == whitespace
-	if withSpace {
-		t.Context.advanceOffset(1, true)
-		markers = append(markers, whitespace)
-	}
-	t.Context.closeUnmatchedBlocks()
-	t.Context.addChild(ast.NodeBlockquote)
-	t.Context.addChildMarker(ast.NodeBlockquoteMarker, markers)
-	return 1
-}
+// > 后面的空格是可选的
 
 func BlockquoteContinue(blockquote *ast.Node, context *Context) int {
-	ln := context.currentLine
-	if !context.indented && lex.Peek(ln, context.nextNonspace) == lex.ItemGreater {
-		context.advanceNextNonspace()
-		context.advanceOffset(1, false)
-		if token := lex.Peek(ln, context.offset); lex.ItemSpace == token || lex.ItemTab == token {
-			context.advanceOffset(1, true)
-		}
-		return 0
-	}
-	return 1
+	_ = "STUB: not implemented"
+	return 0
 }
 
-func (context *Context) blockquoteFinalize(blockquote *ast.Node) {
-	if !context.ParseOption.Callout {
-		return
-	}
-
-	if nil == blockquote.FirstChild || nil == blockquote.FirstChild.Next {
-		return
-	}
-
-	if ast.NodeParagraph != blockquote.FirstChild.Next.Type {
-		return
-	}
-
-	firstTwoLines := bytes.SplitN(blockquote.FirstChild.Next.Tokens, []byte("\n"), 3)
-	if 2 > len(firstTwoLines) {
-		return
-	}
-
-	line1 := string(firstTwoLines[0])
-	if !strings.HasPrefix(line1, "[!") {
-		return
-	}
-
-	idx := strings.Index(line1, "]")
-	if 0 > idx {
-		return
-	}
-
-	if "" == string(firstTwoLines[1]) {
-		return
-	}
-
-	blockquote.Type = ast.NodeCallout
-	blockquote.FirstChild.Unlink()
-	context.calloutFinalize(blockquote)
-}
+func (context *Context) blockquoteFinalize(blockquote *ast.Node) { _ = "STUB: not implemented"; return }

@@ -8,10 +8,10 @@
 // THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 // See the Mulan PSL v2 for more details.
 
+//go:build javascript
 // +build javascript
 
 package util
 
 // Recover recovers a panic.
-func RecoverPanic(err *error) {
-}
+func RecoverPanic(err *error) { _ = "STUB: not implemented"; return }

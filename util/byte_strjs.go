@@ -8,14 +8,11 @@
 // THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 // See the Mulan PSL v2 for more details.
 
+//go:build javascript
 // +build javascript
 
 package util
 
-func StrToBytes(str string) (ret []byte) {
-	return []byte(str)
-}
+func StrToBytes(str string) (ret []byte) { _ = "STUB: not implemented"; return nil }
 
-func BytesToStr(items []byte) string {
-	return string(items)
-}
+func BytesToStr(items []byte) string { _ = "STUB: not implemented"; return "" }
